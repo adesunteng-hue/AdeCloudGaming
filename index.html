@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdeCloud Gaming</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #080b14;
+    color: white;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+header {
+    padding: 25px 0;
+    border-bottom: 1px solid #20283a;
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: #65a5ff;
+}
+
+.logo span {
+    color: white;
+}
+
+.subtitle {
+    color: #8793a8;
+    margin-top: 8px;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #263248;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 19px;
+    margin-bottom: 18px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #a3adc0;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #64748b;
+}
+
+.durations {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.duration {
+    background: #1b2639;
+    color: white;
+    border: 1px solid #34445e;
+    padding: 18px 5px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+.duration.active {
+    background: #174c94;
+    border-color: #60a5fa;
+}
+
+button {
+    transition: 0.2s;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+.start {
+    width: 100%;
+    padding: 17px;
+    background: #2677ed;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 22px;
+    cursor: pointer;
+}
+
+.stop {
+    width: 100%;
+    padding: 15px;
+    background: #7f1d1d;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    margin-top: 12px;
+    cursor: pointer;
+}
+
+.timer {
+    font-size: 45px;
+    font-weight: bold;
+    text-align: center;
+    margin: 25px 0;
+    color: #60a5fa;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.stat {
+    background: #1b2639;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 25px;
+    margin-top: 10px;
+}
+
+footer {
+    color: #64748b;
+    text-align: center;
+    padding: 25px;
+    font-size: 12px;
+}
+
+@media(max-width: 450px) {
+    .durations {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <div class="logo">AdeCloud <span>Gaming</span></div>
+    <p class="subtitle">Your Cloud PC, Anywhere.</p>
+</header>
+
+<div class="card">
+    <h2>Cloud PC Status</h2>
+    <div class="status">
+        <div class="dot" id="dot"></div>
+        <span id="status">Offline</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Select Session Duration</h2>
+
+    <div class="durations">
+        <button class="duration active" onclick="selectTime(1,this)">1 Jam</button>
+        <button class="duration" onclick="selectTime(2,this)">2 Jam</button>
+        <button class="duration" onclick="selectTime(3,this)">3 Jam</button>
+        <button class="duration" onclick="selectTime(4,this)">4 Jam</button>
+        <button class="duration" onclick="selectTime(5,this)">5 Jam</button>
+        <button class="duration" onclick="selectTime(6,this)">6 Jam</button>
+    </div>
+
+    <button class="start" onclick="startPC()">
+        START CLOUD PC
+    </button>
+
+    <button class="stop" onclick="stopPC()">
+        STOP CLOUD PC
+    </button>
+</div>
+
+<div class="card">
+    <h2>Session Timer</h2>
+    <div class="timer" id="timer">00:00:00</div>
+    <div class="status" style="justify-content:center">
+        Remaining Session Time
+    </div>
+</div>
+
+<div class="card">
+    <h2>Cloud PC Resources</h2>
+
+    <div class="stats">
+        <div class="stat">
+            CPU
+            <strong id="cpu">--</strong>
+        </div>
+
+        <div class="stat">
+            RAM
+            <strong id="ram">--</strong>
+        </div>
+    </div>
+</div>
+
+<footer>
+    AdeCloud Gaming © 2026
+    <br><br>
+    Cloud Gaming Platform
+</footer>
+
+</div>
+
+<script>
+let selectedHours = 1;
+let remaining = 0;
+let interval = null;
+
+function selectTime(hours, button) {
+    selectedHours = hours;
+
+    document.querySelectorAll(".duration")
+    .forEach(b => b.classList.remove("active"));
+
+    button.classList.add("active");
+}
+
+function updateTimer() {
+    let h = Math.floor(remaining / 3600);
+    let m = Math.floor((remaining % 3600) / 60);
+    let s = remaining % 60;
+
+    document.getElementById("timer").textContent =
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0");
+}
+
+function startPC() {
+    if (interval) return;
+
+    remaining = selectedHours * 3600;
+
+    document.getElementById("status").textContent =
+        "Demo Session";
+
+    document.getElementById("dot").style.background =
+        "#facc15";
+
+    document.getElementById("cpu").textContent = "Demo";
+    document.getElementById("ram").textContent = "Demo";
+
+    updateTimer();
+
+    interval = setInterval(() => {
+        remaining--;
+        updateTimer();
+
+        if (remaining <= 0) {
+            stopPC();
+        }
+    }, 1000);
+}
+
+function stopPC() {
+    clearInterval(interval);
+    interval = null;
+    remaining = 0;
+
+    updateTimer();
+
+    document.getElementById("status").textContent =
+        "Offline";
+
+    document.getElementById("dot").style.background =
+        "#64748b";
+
+    document.getElementById("cpu").textContent = "--";
+    document.getElementById("ram").textContent = "--";
+}
+</script>
+
+</body>
+</html>
